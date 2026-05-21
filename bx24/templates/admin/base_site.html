@@ -1,0 +1,14 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ title }} | Моя CRM{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}">Моя CRM</a>
+</h1>
+{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="/static/admin/css/custom_admin.css">
+{% endblock %}

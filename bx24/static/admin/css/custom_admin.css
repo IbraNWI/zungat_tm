@@ -1,0 +1,94 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+/* Основной шрифт */
+body, input, select, textarea, button {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Шапка */
+#header {
+    background: #1a1a2e;
+    color: #e0e0e0;
+}
+
+#header a:link, #header a:visited {
+    color: #e0e0e0;
+}
+
+#branding h1 {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Навигация */
+div.module h2, div.module caption, .pagetitle {
+    background: #16213e;
+    color: #ffffff;
+}
+
+/* Ссылки */
+a:link, a:visited {
+    color: #4a90d9;
+}
+
+/* Кнопки */
+.button, input[type=submit], input[type=button], .submit-row input {
+    background: #4a90d9;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.button:hover, input[type=submit]:hover {
+    background: #357abd;
+}
+
+.button.default, input[type=submit].default {
+    background: #1a1a2e;
+}
+
+/* Таблицы */
+#result_list thead th {
+    background: #16213e;
+    color: #ffffff;
+}
+
+#result_list tr:nth-child(even) {
+    background: #f8f9fa;
+}
+
+/* Боковая панель */
+#nav-sidebar {
+    background: #1a1a2e;
+}
+
+#nav-sidebar a {
+    color: #c0c0d0;
+}
+
+#nav-sidebar .current-app .section:link,
+#nav-sidebar .current-app .section:visited {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+/* Поля формы */
+.form-row {
+    border-bottom: 1px solid #e8e8e8;
+}
+
+input[type=text], input[type=password], input[type=email],
+select, textarea {
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-family: 'Inter', sans-serif;
+}
+
+input[type=text]:focus, select:focus, textarea:focus {
+    border-color: #4a90d9;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(74, 144, 217, 0.2);
+}

@@ -1,0 +1,18 @@
+{% extends "admin/change_form.html" %}
+
+{% block submit_buttons_bottom %}
+{{ block.super }}
+<div class="submit-row" style="margin-top: 10px;">
+    {% if original.is_active %}
+        <input type="submit"
+               name="_deactivate"
+               value="⛔ Деактивировать"
+               style="background:#c62828; color:white; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; font-family:Inter,sans-serif; font-weight:500;">
+    {% else %}
+        <input type="submit"
+               name="_activate"
+               value="✅ Активировать"
+               style="background:#2e7d32; color:white; border:none; padding:10px 16px; border-radius:6px; cursor:pointer; font-family:Inter,sans-serif; font-weight:500;">
+    {% endif %}
+</div>
+{% endblock %}
