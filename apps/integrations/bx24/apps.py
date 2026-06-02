@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class Bx24Config(AppConfig):
-    name = 'bx24'
+    name = 'apps.integrations.bx24'

@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from django.utils import timezone
 
 
-from bx24.lib.models.auth import BitrixAuth
+from apps.integrations.bx24.lib.models.auth import BitrixAuth
 
 
 def bitrix_connect(request):

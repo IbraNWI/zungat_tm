@@ -3,8 +3,8 @@ from django.shortcuts import redirect
 from django.contrib import messages
 import secrets
 
-from bx24.lib.services.client import Bx24Client
-from bx24.models import BitrixAuth
+from apps.integrations.bx24.lib.services.client import Bx24Client
+from apps.integrations.bx24.models import BitrixAuth
 
 @admin.register(BitrixAuth)
 class BitrixAuthAdmin(admin.ModelAdmin):

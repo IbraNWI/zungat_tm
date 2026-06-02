@@ -37,8 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "bx24",
-    "tm_driver"
+    "apps.integrations.bx24",
+    "apps.integrations.tm_driver"
 ]
 
 MIDDLEWARE = [
