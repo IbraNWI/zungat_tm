@@ -28,7 +28,9 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "*"
 ]
-
+CSRF_TRUSTED_ORIGINS = [
+    "https://test.ntwrk.ing"
+    ]
 
 # Application definition
 
