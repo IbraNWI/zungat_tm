@@ -15,5 +15,5 @@ bx_client = Bx24Client()
 
 # print(tm_client.driver.list())
 
-fields = bx_client.payment_rule.list(filters={"payment_frequency":175})
-print(fields)
+# fields = bx_client.payment_rule.list(filters={"payment_frequency":175})
+# print(fields)

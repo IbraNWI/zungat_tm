@@ -38,7 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "apps.integrations.bx24",
-    "apps.integrations.tm_driver"
+    "apps.integrations.tm_driver",
+    "apps.domain.writeoff",
+    "apps.domain.recovery",
+    "apps.domain.installments"
 ]
 
 MIDDLEWARE = [
@@ -77,7 +80,7 @@ WSGI_APPLICATION = 'zungat_tm.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'data/db.sqlite3',
     }
 }
 
