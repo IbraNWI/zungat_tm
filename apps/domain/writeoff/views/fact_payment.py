@@ -12,6 +12,7 @@ def echo(request):
         # если JSON — вернуть как JSON, иначе как текст
         try:
             data = json.loads(body) if body else {}
+            print(data)
             return JsonResponse(data)
         except json.JSONDecodeError:
             return HttpResponse(body, content_type="text/plain")
