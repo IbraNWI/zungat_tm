@@ -1,8 +1,19 @@
-from django.http import JsonResponse
+import json
+from django.http import HttpResponse, JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
-
-
-def writeoff_func(request):
+@csrf_exempt
+def echo(request):
     if request.method == "GET":
-        data = {"message": "ok", "query": request.GET.dict()}
-        return JsonResponse(data)
+        return HttpResponse(request.GET.urlencode() or "{}", content_type="text/plain")
+
+    if request.method == "POST":
+        body = request.body.decode("utf-8") or ""
+        # если JSON — вернуть как JSON, иначе как текст
+        try:
+            data = json.loads(body) if body else {}
+            return JsonResponse(data)
+        except json.JSONDecodeError:
+            return HttpResponse(body, content_type="text/plain")
+
+    return HttpResponse(status=405)
