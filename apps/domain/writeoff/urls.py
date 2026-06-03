@@ -2,5 +2,5 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('create/', views.echo, name='create_writeoff'),
+    path('create/', views.create_writeoff, name='create_writeoff'),
     ]

@@ -1,1 +1,1 @@
-from .fact_payment import echo
+from .fact_payment import create_writeoff

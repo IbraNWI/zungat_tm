@@ -1,31 +1,41 @@
 # views.py
 
-import json
+
+from pprint import pprint
+
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from pydantic import ValidationError
+
+from .hook_parser import parse_bitrix_payload
+from apps.integrations.bx24.lib.schemas.crm.web_hooks.web_hook import WebhookSchema
 
 
 @csrf_exempt
-def echo(request):
-    print("=" * 50)
-    print("METHOD:", request.method)
-
-    print("\nGET:")
-    print(dict(request.GET))
-
-    print("\nPOST:")
-    print(dict(request.POST))
-
-    print("\nBODY:")
-    print(request.body.decode("utf-8"))
-
+def create_writeoff(request):
     try:
-        body_json = json.loads(request.body)
-        print("\nJSON:")
-        print(json.dumps(body_json, indent=4, ensure_ascii=False))
-    except Exception:
-        pass
+        payload = parse_bitrix_payload(
+            dict(request.POST.lists())
+        )
 
-    print("=" * 50)
+        webhook = WebhookSchema.model_validate(payload)
 
-    return JsonResponse({"status": "ok"})
+        print("=" * 50)
+        print("BITRIX WEBHOOK")
+        pprint(webhook.model_dump())
+        print("=" * 50)
+
+        return JsonResponse({
+            "status": "success",
+        })
+
+    except ValidationError as e:
+        print(e)
+
+        return JsonResponse(
+            {
+                "status": "error",
+                "errors": e.errors(),
+            },
+            status=400,
+        )
