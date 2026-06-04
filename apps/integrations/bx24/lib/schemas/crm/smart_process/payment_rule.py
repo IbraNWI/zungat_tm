@@ -21,8 +21,9 @@ class PaymentRule(BaseConfigModel):
     driver_id:Optional[int] = Field(None,alias="ufCrm15DriversNumber")
     payment_sum:Optional[float] = Field(None,alias="ufCrm15_1753599639155")
     first_pay_date:Optional[datetime] = Field(None,alias="ufCrm15_1757831335159")
-    last_payment_date:Optional[datetime] = Field(None,alias="ufCrm15_1753616129036")
+    last_payment_date:Optional[str] = Field(None,alias="ufCrm15_1753616129036")
     is_active:Optional[int] = Field(None,alias="ufCrm15RuleActivity")
+    allow_overdraft:Optional[bool] = Field(None,alias="ufCrm15AllowOverdraft")
     payment_frequency:Optional[int] = Field(None,alias="ufCrm15_1753599678264")
     payment_day_time:Optional[int] = Field(None,alias="ufCrm15PaymentDayTime")
 

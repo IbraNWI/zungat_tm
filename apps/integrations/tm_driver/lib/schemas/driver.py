@@ -7,7 +7,7 @@ class Driver(BaseConfigModel):
     id:Optional[int] = Field(None,alias="driver_id")
     name:Optional[str] = Field(None,alias="name")
     balance:Optional[float] = Field(None,alias="balance")
-    birthday:Optional[date] = Field(None,alias="birthday")
+    birthday:Optional[str] = Field(None,alias="birthday")
     tabel_number:Optional[str] = Field(None,alias="number")
     driver_license:Optional[str] = Field(None,alias="driver_license")
     license:Optional[str] = Field(None,alias="license")

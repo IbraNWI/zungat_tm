@@ -71,8 +71,10 @@ class BaseCRMClient:
             "entityTypeId":self.entity_type_id,
             "id":entity_id
             }
-        response = self.client._request(method=method,params=params)["result"]["item"]
-        entity = self.pydantic_class(**response)
+        response = self.client._request(method=method,params=params)
+        if response is None:
+            return response
+        entity = self.pydantic_class(**response["result"]["item"])
         return entity
     
     def list(self,filters:dict):

@@ -21,7 +21,8 @@ class FactPayment(BaseConfigModel):
     arest_sum:Optional[float] = Field(None,alias="ufCrm9_1755697433")
     payment_type_id:Optional[int] = Field(None,alias="ufCrm9PaymentType")
     tm_payment_id:Optional[int] = Field(None,alias="ufCrm9TmPaymentId")
-    deal_id:Optional[int] = Field(None,alias="deal")
+    is_accepted:Optional[bool] = Field(None,alias="ufCrm9AcceptedPayment")
+    deal_id:Optional[int] = Field(None,alias="parentId2")
     comment:Optional[str] = Field(None,alias="comments")
 
     @field_validator("arest_sum", mode="before")

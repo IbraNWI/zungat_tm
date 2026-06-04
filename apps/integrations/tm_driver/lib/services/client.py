@@ -1,4 +1,5 @@
 import hashlib
+import json
 import requests
 import ssl
 from requests.adapters import HTTPAdapter
@@ -48,6 +49,11 @@ class TaxiMasterClient:
         query_string = "&".join(f"{k}={v}" for k, v in params.items())
         raw = query_string + self.auth.secret_key
         return hashlib.md5(raw.encode()).hexdigest()
+    
+    def _sign_raw(self, body: str) -> str:
+        raw = body + self.auth.secret_key
+        return hashlib.md5(raw.encode("utf-8")).hexdigest()
+
 
     def get(self, method: str, params: dict = None) -> dict:
         params = params or {}
@@ -57,24 +63,29 @@ class TaxiMasterClient:
             params=params,
             headers={
                 "Signature": signature,
-                "X-User-Id": "3"
+                "X-User-Id": "3",
+                "charset":"utf-8"
             },
             verify=False
         )
         return self._check_response(response)
 
-    def post(self, method: str, data: dict = None, json: dict = None) -> dict:
-        params = data or json or {}
-        signature = self._sign(params)
+
+
+    def post(self, method: str, data: dict = None, json_data: dict = None) -> dict:
+        params = data or json_data or {}
+        body = json.dumps(params)          # ← было urlencode, должно быть json.dumps
+        signature = self._sign_raw(body)
 
         response = self.session.post(
             url=f"{self.base_url}/{method}",
-            data=data,
-            json=json,
+            data=body,
             headers={
-                "Content-Type": "application/json",
-                "Signature": signature
-                }
+                "Content-Type": "application/json; charset=utf-8",  # ← было form-urlencoded
+                "Signature": signature,
+                "X-User-Id": "3",
+            },
+            verify=False
         )
         return self._check_response(response)
 

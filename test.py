@@ -6,14 +6,14 @@ django.setup()
 
 from apps.integrations.tm_driver.lib.services.client import TaxiMasterClient
 from apps.integrations.bx24.lib.services.client import Bx24Client
-from apps.integrations.bx24.lib.schemas.crm.smart_process.fact_payment import FactPayment
-from apps.integrations.bx24.lib.schemas.crm.timeline_message import TimelineMessage
+from apps.integrations.tm_driver.lib.schemas import (
+    Driver,Operation)
+from apps.integrations.bx24.lib.schemas import PaymentRule
 
-# from bx24.integration.code.update_contact_info import main as update_contact
-# tm_client = TaxiMasterClient()
-bx_client = Bx24Client()
+from apps.domain.writeoff.application.manual_writeoff import ManualWriteoffService
+from datetime import datetime, timedelta,date
 
-# print(tm_client.driver.list())
 
-# fields = bx_client.payment_rule.list(filters={"payment_frequency":175})
-# print(fields)
+
+ManualWriteoffService().execute(fact_payment_id=48175)
+# print(TaxiMasterClient().driver.get(id=20))

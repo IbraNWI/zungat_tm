@@ -19,7 +19,7 @@ class DriverClient():
     def add(self,driver:Driver):
         method = "create_driver"
         data = driver.dict(by_alias=True,exclude_none=True)
-        response = self.client.post(method=method,json=data)
+        response = self.client.post(method=method,data=data)
         entity = self.pydantic_class(**response)
         return entity
     

@@ -1,14 +1,34 @@
 # views.py
-
-
-from pprint import pprint
-
+import re
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from pydantic import ValidationError
 
-from .hook_parser import parse_bitrix_payload
 from apps.integrations.bx24.lib.schemas.crm.web_hooks.web_hook import WebhookSchema
+from ..application.manual_writeoff import ManualWriteoffService
+
+
+
+def parse_bitrix_payload(data: dict) -> dict:
+    result = {}
+
+    for key, value in data.items():
+        value = value[0]
+
+        match = re.match(r"(\w+)\[(.+)\]", key)
+
+        if not match:
+            result[key] = value
+            continue
+
+        root, child = match.groups()
+
+        if root not in result:
+            result[root] = {}
+
+        result[root][child] = value
+
+    return result
 
 
 @csrf_exempt
@@ -19,11 +39,11 @@ def create_writeoff(request):
         )
 
         webhook = WebhookSchema.model_validate(payload)
+        s = webhook['document_id']['2']                        # "DYNAMIC_1052_48175"
+        match = re.search(r'(\d+)$', s)
+        result = match.group(1) if match else None   
+        service = ManualWriteoffService().execute(fact_payment_id=int(result))
 
-        print("=" * 50)
-        print("BITRIX WEBHOOK")
-        pprint(webhook.model_dump())
-        print("=" * 50)
 
         return JsonResponse({
             "status": "success",

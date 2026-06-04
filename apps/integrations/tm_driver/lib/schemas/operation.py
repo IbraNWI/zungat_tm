@@ -10,7 +10,7 @@ class Operation(BaseConfigModel):
     create_time:Optional[datetime] = Field(None,alias="oper_time")
     sum:Optional[float] = Field(None,alias="sum")
     oper_sum:Optional[float] = Field(None,alias="oper_sum")
-    operation_type:Optional[int] = Field(None,alias="oper_type")
+    oper_type:Optional[str] = Field(None,alias="oper_type")
     comment:Optional[str] = Field(None,alias="comment")
     account_type:Optional[int] = Field(None,alias="account_kind")
     cancelled_by_oper_id:Optional[int] = Field(None,alias="cancelled_by_oper_id")
