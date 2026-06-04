@@ -19,10 +19,10 @@ class PaymentValidator:
         if payment_rule.driver_id is None:
             raise ValidationError("Payment rule has no driver_id")
 
-    def _checkPayment(self,fact_payment,deal,payment_rule):
+    def _checkPayment(self,fact_payment,deal):
 
         if fact_payment.is_accepted is True: # Если платеж уже применен
-            raise ValidationError("Payment is accepted")
+            raise ValidationError("Payment was accepted")
         
         if fact_payment.payment_type_id != 255: # Если тип платежа не подходит
             raise ValidationError("Payment type is incorrect")
@@ -41,4 +41,4 @@ class PaymentValidator:
     def validate(self,fact_payment,deal,payment_rule):
         self._checkDeal(deal)
         self._checkPaymentRule(payment_rule)
-        self._checkPayment(fact_payment,deal,payment_rule)
+        self._checkPayment(fact_payment,deal)

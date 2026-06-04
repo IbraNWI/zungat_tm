@@ -1,0 +1,35 @@
+from datetime import datetime
+from apps.integrations.bx24.lib.services.client import Bx24Client
+from apps.integrations.bx24.lib.schemas import FactPayment,PaymentRule
+
+class UpdatePaymentError(Exception):
+    pass
+
+class UpdatePayment:
+    def __init__(self,bx_client:Bx24Client):
+        self.bx_client = bx_client
+
+    
+
+    def _updatePaymentRule(self,payment_rule):
+        self.bx_client.payment_rule.update(PaymentRule(
+            id=payment_rule.id,
+            last_payment_date=datetime.now().strftime("%d.%m.%Y")
+            )
+        )
+        return payment_rule
+    
+    def _updateFactPayment(self,fact_payment_id:int,operation:any,paid:float,arrest:float):                
+        self.bx_client.fact_payment.update(FactPayment(
+            id=fact_payment_id,
+            tm_payment_id=operation.id,
+            stage_id="DT1052_15:SUCCESS",
+            opportunity=paid,
+            arest_sum=arrest
+                )
+            )
+        
+
+    def update(self,fact_payment,operation,payment_rule,paid,arrest):
+        self._updateFactPayment(fact_payment.id,operation,paid,arrest)
+        self._updatePaymentRule(payment_rule)

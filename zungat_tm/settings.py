@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     "apps.integrations.tm_driver",
     "apps.domain.writeoff",
     "apps.domain.recovery",
-    "apps.domain.installments"
+    "apps.domain.installments",
+    "apps.domain.cencel_payment"
 ]
 
 MIDDLEWARE = [

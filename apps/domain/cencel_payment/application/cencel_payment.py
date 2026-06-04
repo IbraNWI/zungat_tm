@@ -2,17 +2,26 @@ from apps.integrations.bx24.lib.services.client import Bx24Client
 from apps.integrations.tm_driver.lib.services.client import TaxiMasterClient as TMClient
 from apps.integrations.bx24.lib.schemas.crm.timeline_message import TimelineMessage
 
-from apps.domain.writeoff.services import (
-    PaymentValidator,WriteoffDataLoader,
-    MakeOperation,PaymentCalculation,
-    CalculateError,UpdatePayment,
-    ValidationError,DataNotFoundError,
-    TMOperationError,UpdatePaymentError
-    )
+from apps.domain.cencel_payment.services import (
+    CencelPaymentLoader,DataNotFoundError,
+    PaymentValidator,ValidationError,
+    PaymentCalculation,CalculateError,
+    MakeOperation,TMOperationError,
+    UpdatePayment,UpdatePaymentError
+)
 
 
-class ManualWriteoffService:
 
+class CencelPaymentService:
+    def __init__(self):
+        self.bx_client = Bx24Client()
+        self.tm_client = TMClient()
+
+        self.cencel_payment_loader = CencelPaymentLoader(self.bx_client)
+        self.payment_validator = PaymentValidator(self.bx_client)
+        self.payment_calculation = PaymentCalculation(self.tm_client)
+        self.make_operation = MakeOperation(self.tm_client)
+        self.update_payment = UpdatePayment(self.bx_client)
     
     def _addError(self, text: str, id:int):
         self.bx_client.fact_payment.timeline.add(
@@ -35,28 +44,19 @@ class ManualWriteoffService:
         elif place == "finish":
             message = TimelineMessage(
                 entity_id=id,
-                title="Успешный платеж",
+                title="Платеж отменен",
                 text="Успешный платеж",
                 icon_code="complete"
                 )
         self.bx_client.fact_payment.timeline.add(message)
 
 
-    def __init__(self):
-        self.bx_client = Bx24Client()
-        self.tm_client = TMClient()
-        
-        self.data_loader = WriteoffDataLoader(self.bx_client)
-        self.payment_validator = PaymentValidator(self.bx_client)
-        self.payment_calculation = PaymentCalculation(self.tm_client)
-        self.make_operation = MakeOperation(self.tm_client)
-        self.update_payment = UpdatePayment(self.bx_client)
-    
 
-    def execute(self, fact_payment_id: int):
+    def execute(self,fact_payment_id):
         self._addEvent(place="start",id=fact_payment_id)
+
         try:
-            fact_payment, deal, payment_rule = self.data_loader.load(fact_payment_id)
+            fact_payment, deal, payment_rule = self.cencel_payment_loader.load(fact_payment_id)
         except DataNotFoundError as e:
             self._addError(text=str(e),id=fact_payment_id)
             return
@@ -68,11 +68,11 @@ class ManualWriteoffService:
             return
         
         try:
-            paid, arrest = self.payment_calculation.calculate(fact_payment,payment_rule)
+            paid,arrest = self.payment_calculation.calculate(fact_payment,payment_rule)
         except CalculateError as e:
             self._addError(text=str(e),id=fact_payment_id)
             return
-
+        
         try:
             operation = self.make_operation.make(fact_payment,payment_rule)
         except TMOperationError as e:
@@ -81,9 +81,8 @@ class ManualWriteoffService:
         
         try:
             self.update_payment.update(fact_payment,operation,payment_rule,paid,arrest)
-        except UpdatePaymentError as e:
+        except UnicodeDecodeError as e:
             self._addError(text=str(e),id=fact_payment_id)
-        
-        
+            return
+ 
         self._addEvent(place="finish",id=fact_payment_id)
-        
