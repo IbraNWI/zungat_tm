@@ -13,19 +13,19 @@ class PaymentValidator:
     def _checkDeal(self,deal):
         
         if deal.category_id not in [19]: # Если сделка по платежу не нужной воронке
-            raise ValidationError("Payment's deal is on wrong category")
+            raise ValidationError("Рассрочка по платежу находится на неподходящей воронке")
 
     def _checkPaymentRule(self,payment_rule):        
         if payment_rule.driver_id is None:
-            raise ValidationError("Payment rule has no driver_id")
+            raise ValidationError("В правиле списаний не указан позывной водителя")
 
     def _checkPayment(self,fact_payment,deal):
 
         if fact_payment.is_accepted is True: # Если платеж уже применен
-            raise ValidationError("Payment was accepted")
+            raise ValidationError("Платеж уже был проведен")
         
         if fact_payment.payment_type_id != 255: # Если тип платежа не подходит
-            raise ValidationError("Payment type is incorrect")
+            raise ValidationError("Некорректный тип платежа")
 
         check_sum = [
             deal.total_arest_sum,
@@ -35,7 +35,7 @@ class PaymentValidator:
         check_sum = [i for i in check_sum if i is not None]
         
         if sum(check_sum) > deal.opportunity: # Сумма платежа больше чем нужно для закрытия рассрочки
-            raise ValidationError("Payment has too high opportunity")
+            raise ValidationError("Сумма платежа больше чем нужно для закрытия рассрочки")
    
 
     def validate(self,fact_payment,deal,payment_rule):

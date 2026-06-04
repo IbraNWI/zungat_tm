@@ -10,10 +10,7 @@ from apps.integrations.tm_driver.lib.schemas import (
     Driver,Operation)
 from apps.integrations.bx24.lib.schemas import PaymentRule
 
-from apps.domain.writeoff.application.manual_writeoff import ManualWriteoffService
-from datetime import datetime, timedelta,date
+from apps.domain.installments.application.installments import InstallmentService
 
 
-
-ManualWriteoffService().execute(fact_payment_id=48175)
-# print(TaxiMasterClient().driver.get(id=20))
+InstallmentService().execute()

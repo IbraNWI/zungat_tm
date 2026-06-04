@@ -54,6 +54,7 @@ class CRMTimelineClient:
 
 
 class BaseCRMClient:
+    
     def __init__(
             self, 
             client, 
@@ -77,6 +78,50 @@ class BaseCRMClient:
         entity = self.pydantic_class(**response["result"]["item"])
         return entity
     
+    def iter_list(
+            self,
+            filters: dict | None = None,
+            select: list[str] | None = None,
+            order: dict | None = None,
+            ):
+        method = f"crm.{self.endpoint}.list.json"
+
+        params = {
+            "entityTypeId": self.entity_type_id,
+        }
+
+        if filters:
+            params["filter"] = self._convert_filter_keys(filters)
+
+        if select:
+            params["select"] = select
+
+        if order:
+            params["order"] = order
+
+        start = 0
+
+        while True:
+            params["start"] = start
+
+            response = self.client._request(
+                method=method,
+                params=params,
+            )
+
+            if not response:
+                return
+
+            result = response["result"]
+
+            for item in result.get("items", []):
+                yield self.pydantic_class(**item)
+
+            if "next" not in result:
+                return
+
+            start = result["next"]
+
     def list(self,filters:dict):
         method = f"crm.{self.endpoint}.list.json"
         params = {
@@ -127,22 +172,28 @@ class BaseCRMClient:
         return self.client._request(method=method,params=params)
 
     def _convert_filter_keys(self, filters: dict) -> dict:
-
+        BITRIX_OPERATORS = (
+            "!@", ">=", "<=",
+            "=%",  ">",  "<",
+            "!",   "%",  "@",)
         result = {}
 
-        for field_name, value in filters.items():
+        for key, value in filters.items():
+            operator = ""
+            field_name = key
+
+            for op in BITRIX_OPERATORS:
+                if key.startswith(op):
+                    operator = op
+                    field_name = key[len(op):]
+                    break
 
             field = self.pydantic_class.model_fields.get(field_name)
 
-            # если поле не найдено — оставляем как есть
-            if field is None:
-                result[field_name] = value
-                continue
+            if field:
+                field_name = field.alias or field_name
 
-            # берем alias из pydantic
-            alias = field.alias or field_name
-
-            result[alias] = value
+            result[f"{operator}{field_name}"] = value
 
         return result
 
