@@ -38,9 +38,7 @@ def create_writeoff(request):
             dict(request.POST.lists())
         )
 
-        webhook = WebhookSchema.model_validate(payload)['2']
-
-        match = re.search(r'(\d+)$', webhook)
+        match = re.search(r'(\d+)$', payload["2"])
         result = match.group(1) if match else None   
         service = ManualWriteoffService().execute(fact_payment_id=int(result))
 
