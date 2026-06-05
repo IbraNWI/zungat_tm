@@ -21,7 +21,7 @@ class PaymentValidator:
 
     def _checkPayment(self,fact_payment,deal):
 
-        if fact_payment.is_accepted is True: # Если платеж уже применен
+        if fact_payment.payment_state_id == 285: # Если платеж уже применен
             raise ValidationError("Платеж уже был проведен")
         
         if fact_payment.payment_type_id != 255: # Если тип платежа не подходит
