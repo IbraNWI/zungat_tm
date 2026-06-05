@@ -62,7 +62,7 @@ class CencelPaymentService:
             return
 
         try:
-            deal = self.cencel_payment_loader._loadDeal(fact_payment.deal)
+            deal = self.cencel_payment_loader._loadDeal(fact_payment.deal_id)
             payment_rule = self.cencel_payment_loader._loadPaymentRule(deal.payment_rule)
         except DataNotFoundError as e:
             self._addError(text=str(e),id=fact_payment_id)

@@ -33,7 +33,7 @@ class CencelPaymentLoader:
 
     def load(self, fact_payment_id: int):
         fact_payment = self._loadPayment(fact_payment_id)
-        deal = self._loadDeal(fact_payment.deal)
+        deal = self._loadDeal(fact_payment.deal_id)
         payment_rule = self._loadPaymentRule(deal.payment_rule)
 
 

@@ -61,7 +61,7 @@ class ManualWriteoffService:
             self._addError(text=str(e),id=fact_payment_id)
             return
         try:
-            deal = self.data_loader._loadDeal(fact_payment.deal)
+            deal = self.data_loader._loadDeal(fact_payment.deal_id)
             payment_rule = self.data_loader._loadPaymentRule(deal.payment_rule)
         except DataNotFoundError as e:
             self._addError(text=str(e),id=fact_payment_id)
