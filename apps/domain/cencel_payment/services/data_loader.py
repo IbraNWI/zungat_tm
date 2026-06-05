@@ -10,9 +10,7 @@ class CencelPaymentLoader:
         self.bx_client = bx_client
 
     def load(self, fact_payment_id: int):
-        raise DataNotFoundError("Method does not work")
-    
-    
+        
         fact_payment = self.bx_client.fact_payment.get(entity_id=fact_payment_id)
 
         if not fact_payment:
