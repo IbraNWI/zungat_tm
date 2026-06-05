@@ -56,33 +56,43 @@ class ManualWriteoffService:
     def execute(self, fact_payment_id: int):
         self._addEvent(place="start",id=fact_payment_id)
         try:
-            fact_payment, deal, payment_rule = self.data_loader.load(fact_payment_id)
+            fact_payment = self.data_loader._loadPayment(fact_payment_id)
         except DataNotFoundError as e:
             self._addError(text=str(e),id=fact_payment_id)
             return
+        try:
+            deal = self.data_loader._loadDeal(fact_payment.deal)
+            payment_rule = self.data_loader._loadPaymentRule(deal.payment_rule)
+        except DataNotFoundError as e:
+            self._addError(text=str(e),id=fact_payment_id)
+            self.update_payment.updateRollBack(fact_payment)
         
         try:
             self.payment_validator.validate(fact_payment,deal,payment_rule)
         except ValidationError as e:
             self._addError(text=str(e),id=fact_payment_id)
+            self.update_payment.updateRollBack(fact_payment)
             return
         
         try:
             paid, arrest = self.payment_calculation.calculate(fact_payment,payment_rule)
         except CalculateError as e:
             self._addError(text=str(e),id=fact_payment_id)
+            self.update_payment.updateRollBack(fact_payment)
             return
 
         try:
             operation = self.make_operation.make(fact_payment,payment_rule)
         except TMOperationError as e:
             self._addError(text=str(e),id=fact_payment_id)
+            self.update_payment.updateRollBack(fact_payment)
             return
         
         try:
             self.update_payment.update(fact_payment,operation,payment_rule,paid,arrest)
         except UpdatePaymentError as e:
             self._addError(text=str(e),id=fact_payment_id)
+            self.update_payment.updateRollBack(fact_payment)
         
         
         self._addEvent(place="finish",id=fact_payment_id)

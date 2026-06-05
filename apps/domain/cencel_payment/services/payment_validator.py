@@ -19,7 +19,7 @@ class PaymentValidator:
             raise ValidationError("Payment rule has no driver_id")
 
     def _checkPayment(self,fact_payment):
-        if fact_payment.is_accepted is not True: # Если платеж не был принят
+        if fact_payment.payment_state_id != 287: # Если платеж не был отменен
             raise ValidationError("Payment was not accepted")
     
     

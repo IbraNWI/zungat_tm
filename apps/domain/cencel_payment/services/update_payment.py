@@ -28,7 +28,14 @@ class UpdatePayment:
             arest_sum=arrest
                 )
             )
-        
+    
+    def updateRollBack(self,fact_payment):
+        self.bx_client.fact_payment.update(FactPayment(
+            id=fact_payment.id,
+            stage_id=fact_payment.previous_stage_id,
+                )
+            )
+
 
     def update(self,fact_payment,operation,payment_rule,paid,arrest):
         self._updateFactPayment(fact_payment.id,operation,paid,arrest)

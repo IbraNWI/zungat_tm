@@ -34,6 +34,7 @@ class FactPayment(BaseConfigModel):
     contact_ids:Optional[List[int]] = Field(None,alias="contactIds")
     category_id:Optional[int] = Field(None,alias="categoryId")
     stage_id:Optional[str] = Field(None,alias="stageId")
+    previous_stage_id:Optional[str] = Field(None,alias="previousStageId")
     assigned_by_id:Optional[int] = Field(None,alias="assignedById")
     opportunity:Optional[float] = Field(None,alias="opportunity")
     arest_sum:Optional[float] = Field(None,alias="ufCrm9_1755697433")

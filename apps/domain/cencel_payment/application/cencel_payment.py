@@ -13,6 +13,7 @@ from apps.domain.cencel_payment.services import (
 
 
 class CencelPaymentService:
+    
     def __init__(self):
         self.bx_client = Bx24Client()
         self.tm_client = TMClient()
@@ -54,17 +55,25 @@ class CencelPaymentService:
 
     def execute(self,fact_payment_id):
         self._addEvent(place="start",id=fact_payment_id)
-
         try:
-            fact_payment, deal, payment_rule = self.cencel_payment_loader.load(fact_payment_id)
+            fact_payment = self.cencel_payment_loader._loadPayment(fact_payment_id)
         except DataNotFoundError as e:
             self._addError(text=str(e),id=fact_payment_id)
+            return
+
+        try:
+            deal = self.cencel_payment_loader._loadDeal(fact_payment.deal)
+            payment_rule = self.cencel_payment_loader._loadPaymentRule(deal.payment_rule)
+        except DataNotFoundError as e:
+            self._addError(text=str(e),id=fact_payment_id)
+            self.update_payment.updateRollBack(fact_payment)
             return
         
         try:
             self.payment_validator.validate(fact_payment,deal,payment_rule)
         except ValidationError as e:
             self._addError(text=str(e),id=fact_payment_id)
+            self.update_payment.updateRollBack(fact_payment)
             return
         
         # try:
