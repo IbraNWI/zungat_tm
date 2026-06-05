@@ -3,8 +3,6 @@ import re
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from pydantic import ValidationError
-
-from apps.integrations.bx24.lib.schemas.crm.web_hooks.web_hook import WebhookSchema
 from ..application.manual_writeoff import ManualWriteoffService
 
 
