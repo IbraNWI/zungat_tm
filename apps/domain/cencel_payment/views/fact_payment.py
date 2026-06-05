@@ -37,7 +37,7 @@ def cencel_payment(request):
             dict(request.POST.lists())
         )
 
-        match = re.search(r'(\d+)$', payload["2"])
+        match = re.search(r'(\d+)$', payload["document_id"]["2"])
         result = match.group(1) if match else None   
         service = CencelPaymentService().execute(fact_payment_id=int(result))
 
