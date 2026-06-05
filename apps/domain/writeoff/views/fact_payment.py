@@ -30,13 +30,13 @@ def parse_bitrix_payload(data: dict) -> dict:
 
 
 @csrf_exempt
-def create_writeoff(request):
+def accept_writeoff(request):
     try:
         payload = parse_bitrix_payload(
             dict(request.POST.lists())
         )
 
-        match = re.search(r'(\d+)$', payload["2"])
+        match = re.search(r'(\d+)$', payload["document_id"]["2"])
         result = match.group(1) if match else None   
         service = ManualWriteoffService().execute(fact_payment_id=int(result))
 

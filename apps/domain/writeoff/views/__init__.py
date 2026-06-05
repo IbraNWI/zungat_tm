@@ -1,1 +1,1 @@
-from .fact_payment import create_writeoff
+from .fact_payment import accept_writeoff

@@ -12,15 +12,15 @@ class PaymentValidator:
     def _checkDeal(self,deal):
         
         if deal.category_id not in [19]: # Если сделка по платежу не нужной воронке
-            raise ValidationError("Payment's deal is on wrong category")
+            raise ValidationError("Рассрочка по платежу находится на неподходящей воронке")
 
     def _checkPaymentRule(self,payment_rule):        
         if payment_rule.driver_id is None:
-            raise ValidationError("Payment rule has no driver_id")
+            raise ValidationError("В правиле списаний не указан позывной водителя")
 
     def _checkPayment(self,fact_payment):
         if fact_payment.payment_state_id != 287: # Если платеж не был отменен
-            raise ValidationError("Payment was not accepted")
+            raise ValidationError("Платеж не был отменен")
     
     
     

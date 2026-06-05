@@ -12,23 +12,23 @@ class WriteoffDataLoader:
     def _loadPayment(self,fact_payment_id:int):
         fact_payment = self.bx_client.fact_payment.get(entity_id=fact_payment_id)
         if not fact_payment:
-            raise DataNotFoundError("Fact payment not found")
+            raise DataNotFoundError("Фактический платеж не найден")
         return fact_payment
     
     def _loadDeal(self,deal_id):
         if not deal_id:
-            raise DataNotFoundError("Fact payment has no deal")
+            raise DataNotFoundError("Нет рассрочки по данному фактическому платежу")
         deal = self.bx_client.deal.get(entity_id=deal_id)
         if not deal:
-            raise DataNotFoundError("Deal not found")
+            raise DataNotFoundError("Нет рассрочки по данному фактическому платежу")
         return deal
     
     def _loadPaymentRule(self,payment_rule_id):
         if not payment_rule_id:
-            raise DataNotFoundError("Deal has no payment rule")
+            raise DataNotFoundError("Рассрочка не имеет правила списаний")
         payment_rule = self.bx_client.payment_rule.get(entity_id=payment_rule_id)
         if not payment_rule:
-            raise DataNotFoundError("Payment rule not found")
+            raise DataNotFoundError("Рассрочка не имеет правила списаний")
         return payment_rule
 
     def load(self, fact_payment_id: int):
