@@ -8,11 +8,10 @@ class MakeOperation:
     def __init__(self,tm_client:TMClient):
         self.tm_client = tm_client
 
-    def _getOperation(self,fact_payment,payment_rule):
-        oper_sum =  fact_payment.opportunity + fact_payment.arest_sum
+    def _getOperation(self,fact_payment,payment_rule,payment_sum):
         return Operation(
             driver_id=payment_rule.driver_id,
-            oper_sum=oper_sum,
+            oper_sum=payment_sum,
             oper_type="receipt",
             title=f"Отмена платежа {fact_payment.tm_payment_id}. Зунгат"
             )

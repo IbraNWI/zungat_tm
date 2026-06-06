@@ -76,15 +76,15 @@ class CencelPaymentService:
             self.update_payment.updateRollBack(fact_payment)
             return
         
-        # try:
-        #     paid,arrest = self.payment_calculation.calculate(fact_payment,payment_rule)
-        # except CalculateError as e:
-        #     self._addError(text=str(e),id=fact_payment_id)
-        #     self.update_payment.updateRollBack(fact_payment)
-        #     return
+        try:
+            payment_sum = self.payment_calculation.calculate(fact_payment,payment_rule)
+        except CalculateError as e:
+            self._addError(text=str(e),id=fact_payment_id)
+            self.update_payment.updateRollBack(fact_payment)
+            return
         
         try:
-            operation = self.make_operation.make(fact_payment,payment_rule)
+            operation = self.make_operation.make(fact_payment,payment_rule,payment_sum)
         except TMOperationError as e:
             self._addError(text=str(e),id=fact_payment_id)
             self.update_payment.updateRollBack(fact_payment)

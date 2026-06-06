@@ -11,8 +11,7 @@ class PaymentCalculation:
 
     def calculate(self,fact_payment,payment_rule):
         balance = self.tm_client.driver.get(id=payment_rule.driver_id).balance
+        payment_sum = [i for i in [fact_payment.opportunity,fact_payment.arest_sum] if i is not None]
 
-        paid = fact_payment.opportunity + fact_payment.arest_sum
-        arrest = 0
-
-        return paid, arrest
+        payment_sum = sum(payment_sum)
+        return payment_sum
