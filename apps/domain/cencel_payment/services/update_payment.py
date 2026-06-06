@@ -27,7 +27,7 @@ class UpdatePayment:
         self.bx_client.fact_payment.update(FactPayment(
             id=fact_payment_id,
             tm_payment_id=operation.id,
-            stage_id="DT1052_15:SUCCESS",
+            stage_id="DT1052_15:UC_LE9QRK",
             cenceled_tm_payment_id=cenceled_tm_payment_id
                 )
             )
