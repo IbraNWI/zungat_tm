@@ -28,7 +28,6 @@ class UpdatePayment:
             id=fact_payment_id,
             tm_payment_id=operation.id,
             stage_id="DT1052_15:SUCCESS",
-            tm_payment_id=operation.id,
             cenceled_tm_payment_id=cenceled_tm_payment_id
                 )
             )
