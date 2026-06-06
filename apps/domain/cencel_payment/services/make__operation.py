@@ -16,7 +16,7 @@ class MakeOperation:
             title=f"Отмена платежа {fact_payment.tm_payment_id}. Зунгат"
             )
     
-    def make(self,fact_payment,payment_rule):
-        operation = self._getOperation(fact_payment,payment_rule)
+    def make(self,fact_payment,payment_rule,payment_sum):
+        operation = self._getOperation(fact_payment,payment_rule,payment_sum)
         operation = self.tm_client.operation.add(operation)
         return operation
