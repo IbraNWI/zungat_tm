@@ -21,11 +21,15 @@ class PaymentValidator:
 
     def _checkPayment(self,fact_payment,deal):
 
-        if fact_payment.payment_state_id == 285: # Если платеж уже применен
-            raise ValidationError("Платеж уже был проведен")
-        
         if fact_payment.payment_type_id != 255: # Если тип платежа не подходит
             raise ValidationError("Некорректный тип платежа")
+
+        if fact_payment.payment_state_id != 289: # Если платеж уже принят
+            raise ValidationError("Платеж уже был обработан")
+        
+        
+        if fact_payment.cenceled_tm_payment_id is not None: # Если платеж уже был отменен до этого
+            raise ValidationError("Платеж уже был отменен в TM")
 
         check_sum = [
             deal.total_arest_sum,

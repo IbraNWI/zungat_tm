@@ -19,8 +19,8 @@ class PaymentValidator:
             raise ValidationError("В правиле списаний не указан позывной водителя")
 
     def _checkPayment(self,fact_payment):
-        if fact_payment.payment_state_id != 287: # Если платеж не был отменен
-            raise ValidationError("Платеж не был отменен")
+        if fact_payment.payment_state_id != 285: # Если платеж не был отменен
+            raise ValidationError("Платеж не был до этого принят")
     
     
     

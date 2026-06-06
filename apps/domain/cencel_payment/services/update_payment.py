@@ -19,16 +19,23 @@ class UpdatePayment:
         )
         return payment_rule
     
-    def _updateFactPayment(self,fact_payment_id:int,operation:any,paid:float,arrest:float):                
+    def _updateFactPayment(self,
+                           fact_payment_id:int,
+                           operation:any,
+                           cenceled_tm_payment_id:int):  
+                      
         self.bx_client.fact_payment.update(FactPayment(
             id=fact_payment_id,
             tm_payment_id=operation.id,
             stage_id="DT1052_15:SUCCESS",
-            opportunity=paid,
-            arest_sum=arrest
+            tm_payment_id=operation.id,
+            cenceled_tm_payment_id=cenceled_tm_payment_id
                 )
             )
     
+    def updateFatalError(self,fact_payment):
+        ...
+
     def updateRollBack(self,fact_payment):
         self.bx_client.fact_payment.update(FactPayment(
             id=fact_payment.id,
@@ -37,6 +44,6 @@ class UpdatePayment:
             )
 
 
-    def update(self,fact_payment,operation,payment_rule,paid,arrest):
-        self._updateFactPayment(fact_payment.id,operation,paid,arrest)
+    def update(self,fact_payment,operation,payment_rule):
+        self._updateFactPayment(fact_payment.id,operation,fact_payment.tm_payment_id)
         self._updatePaymentRule(payment_rule)

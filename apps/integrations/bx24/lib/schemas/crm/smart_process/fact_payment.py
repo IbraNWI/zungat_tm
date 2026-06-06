@@ -40,6 +40,7 @@ class FactPayment(BaseConfigModel):
     arest_sum:Optional[float] = Field(None,alias="ufCrm9_1755697433")
     payment_type_id:Optional[int] = Field(None,alias="ufCrm9PaymentType")
     tm_payment_id:Optional[int] = Field(None,alias="ufCrm9TmPaymentId")
+    cenceled_tm_payment_id:Optional[int] = Field(None,alias="ufCrm9CenceledTmPaymentId")
     payment_state_id:Optional[int] = Field(None,alias="ufCrm9PaymentState")
     deal_id:Optional[int] = Field(None,alias="parentId2")
     comment:Optional[str] = Field(None,alias="comments")

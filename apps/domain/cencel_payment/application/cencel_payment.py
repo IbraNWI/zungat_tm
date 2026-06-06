@@ -80,18 +80,21 @@ class CencelPaymentService:
         #     paid,arrest = self.payment_calculation.calculate(fact_payment,payment_rule)
         # except CalculateError as e:
         #     self._addError(text=str(e),id=fact_payment_id)
+        #     self.update_payment.updateRollBack(fact_payment)
         #     return
         
-        # try:
-        #     operation = self.make_operation.make(fact_payment,payment_rule)
-        # except TMOperationError as e:
-        #     self._addError(text=str(e),id=fact_payment_id)
-        #     return
+        try:
+            operation = self.make_operation.make(fact_payment,payment_rule)
+        except TMOperationError as e:
+            self._addError(text=str(e),id=fact_payment_id)
+            self.update_payment.updateRollBack(fact_payment)
+            return
         
-        # try:
-        #     self.update_payment.update(fact_payment,operation,payment_rule,paid,arrest)
-        # except UnicodeDecodeError as e:
-        #     self._addError(text=str(e),id=fact_payment_id)
-        #     return
+        try:
+            self.update_payment.update(fact_payment,operation,payment_rule)
+        except UnicodeDecodeError as e:
+            self._addError(text=str(e),id=fact_payment_id)
+            self.update_payment.updateFatalError(fact_payment)
+            return
  
-        # self._addEvent(place="finish",id=fact_payment_id)
+        self._addEvent(place="finish",id=fact_payment_id)

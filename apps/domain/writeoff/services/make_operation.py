@@ -13,7 +13,7 @@ class MakeOperation:
             driver_id=payment_rule.driver_id,
             oper_sum=fact_payment.opportunity,
             oper_type="expense",
-            title="Тестовое списанине по рассрочке Zungat"
+            title="Ручное списание. Зунгат"
             )
     
     def make(self,fact_payment,payment_rule):
