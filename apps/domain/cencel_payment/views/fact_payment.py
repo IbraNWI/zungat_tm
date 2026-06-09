@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from pydantic import ValidationError
 
-from ..application.cencel_payment import CencelPaymentService
+from ..application.cencel_payment import CencelPaymentApplication
 
 
 
@@ -39,7 +39,7 @@ def cencel_payment(request):
 
         match = re.search(r'(\d+)$', payload["document_id"]["2"])
         result = match.group(1) if match else None   
-        service = CencelPaymentService().execute(fact_payment_id=int(result))
+        service = CencelPaymentApplication().execute(fact_payment_id=int(result))
 
 
         return JsonResponse({

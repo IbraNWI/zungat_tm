@@ -43,6 +43,6 @@ class PaymentValidator:
    
 
     def validate(self,fact_payment,deal,payment_rule):
-        self._checkDeal(deal)
+        # self._checkDeal(deal)
         self._checkPaymentRule(payment_rule)
         self._checkPayment(fact_payment,deal)

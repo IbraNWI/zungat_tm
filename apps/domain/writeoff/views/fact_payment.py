@@ -3,7 +3,7 @@ import re
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from pydantic import ValidationError
-from ..application.manual_writeoff import ManualWriteoffService
+from ..application.manual_writeoff import ManualWriteoffApplication
 
 
 
@@ -38,7 +38,7 @@ def accept_writeoff(request):
 
         match = re.search(r'(\d+)$', payload["document_id"]["2"])
         result = match.group(1) if match else None   
-        service = ManualWriteoffService().execute(fact_payment_id=int(result))
+        service = ManualWriteoffApplication().execute(fact_payment_id=int(result))
 
 
         return JsonResponse({

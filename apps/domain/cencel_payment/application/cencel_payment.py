@@ -12,7 +12,7 @@ from apps.domain.cencel_payment.services import (
 
 
 
-class CencelPaymentService:
+class CencelPaymentApplication:
     
     def __init__(self):
         self.bx_client = Bx24Client()
@@ -34,29 +34,27 @@ class CencelPaymentService:
             )
         )
 
-    def _addEvent(self,place:str,id:int):
+    def _addEvent(self,place:str,fact_payment):
         if place == "start":
             message = TimelineMessage(
-                entity_id=id,
+                entity_id=fact_payment.id,
                 title="Обработка платежа",
                 text="Обработка платежа",
                 icon_code="check"
                 )
         elif place == "finish":
             message = TimelineMessage(
-                entity_id=id,
+                entity_id=fact_payment.id,
                 title="Платеж отменен",
                 text="Успешный платеж",
                 icon_code="complete"
                 )
         self.bx_client.fact_payment.timeline.add(message)
 
-
-
     def execute(self,fact_payment_id):
-        self._addEvent(place="start",id=fact_payment_id)
         try:
             fact_payment = self.cencel_payment_loader._loadPayment(fact_payment_id)
+            self._addEvent(place="start",fact_payment=fact_payment)
         except DataNotFoundError as e:
             self._addError(text=str(e),id=fact_payment_id)
             return
@@ -97,4 +95,4 @@ class CencelPaymentService:
             self.update_payment.updateFatalError(fact_payment)
             return
  
-        self._addEvent(place="finish",id=fact_payment_id)
+        self._addEvent(place="finish",fact_payment=fact_payment)

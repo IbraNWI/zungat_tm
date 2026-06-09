@@ -8,7 +8,7 @@ from apps.domain.installments.services import (
 
 
 
-class InstallmentService:
+class InstallmentApplication:
     
     def __init__(self):
         self.bx_client = Bx24Client()

@@ -11,7 +11,7 @@ from apps.domain.writeoff.services import (
     )
 
 
-class ManualWriteoffService:
+class ManualWriteoffApplication:
 
     
     def _addError(self, text: str, id:int):
