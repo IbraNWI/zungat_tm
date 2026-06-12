@@ -22,6 +22,7 @@ services:
 networks:
   zungat_network:
     driver: bridge
+    name: 'zungat_network'
     ipam:
       config:
         - subnet: 192.168.10.0/24
