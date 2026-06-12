@@ -5,7 +5,7 @@ x-environment: &default-environment
 services:
   web:
     build: .
-    container_name: zungat_tm
+    container_name: zungat_tm_web
     volumes:
       # статика
       - /var/www/zungat_tm:/app/staticfiles
