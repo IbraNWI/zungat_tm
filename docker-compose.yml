@@ -1,30 +1,27 @@
-x-environment: &default-environment
-  TZ: Europe/Moscow
-
 services:
   web:
     build: .
     container_name: zungat_tm_web
+
     volumes:
-      # статика
       - /var/www/zungat_tm:/app/staticfiles
-      # база данных и остальные данные
       - ./data:/app/data
-    ports:
-      - "9010:8000"
+
     restart: always
+
     environment:
       - DJANGO_SETTINGS_MODULE=zungat_tm.settings
       - PYTHONUNBUFFERED=1
+
     command: gunicorn --bind 0.0.0.0:8000 --workers 1 zungat_tm.wsgi:application
+
     networks:
       zungat_network:
         ipv4_address: 192.168.10.10
 
 networks:
   zungat_network:
-    name: zungat_network
     driver: bridge
     ipam:
       config:
-        - subnet: 192.198.10.0/24
+        - subnet: 192.168.10.0/24
