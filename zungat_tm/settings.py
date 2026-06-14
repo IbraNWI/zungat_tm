@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
+from importlib.util import find_spec
 from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured
@@ -63,6 +64,8 @@ if not DEBUG and not ALLOWED_HOSTS:
 if env_bool("DJANGO_SECURE_PROXY_SSL_HEADER", False):
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
+WHITENOISE_AVAILABLE = find_spec("whitenoise") is not None
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -82,7 +85,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -90,6 +92,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if WHITENOISE_AVAILABLE:
+    MIDDLEWARE.insert(1, "whitenoise.middleware.WhiteNoiseMiddleware")
 
 ROOT_URLCONF = 'zungat_tm.urls'
 
@@ -161,7 +166,11 @@ STORAGES = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+        "BACKEND": (
+            "whitenoise.storage.CompressedStaticFilesStorage"
+            if WHITENOISE_AVAILABLE
+            else "django.contrib.staticfiles.storage.StaticFilesStorage"
+        ),
     },
 }
 
