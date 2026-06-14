@@ -15,14 +15,5 @@ services:
 
     command: gunicorn --bind 0.0.0.0:8000 --workers 1 zungat_tm.wsgi:application
 
-    networks:
-      zungat_network:
-        ipv4_address: 192.168.10.10
-
-networks:
-  zungat_network:
-    driver: bridge
-    name: 'zungat_network'
-    ipam:
-      config:
-        - subnet: 192.168.10.0/24
+    ports:
+      - "9010:8000"
