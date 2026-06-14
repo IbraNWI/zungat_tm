@@ -30,6 +30,7 @@ ALLOWED_HOSTS = [
 ]
 CSRF_TRUSTED_ORIGINS = [
     "https://test.ntwrk.ing"
+    "https://test.ntwrk.ing:4439"
     ]
 
 # Application definition
