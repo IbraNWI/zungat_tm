@@ -10,28 +10,58 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+def env_bool(name: str, default: bool = False) -> bool:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def env_list(name: str, default: list[str]) -> list[str]:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return [item.strip() for item in value.split(",") if item.strip()]
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-y$(ty_woo(=d+s+=b4p==%ddmt1a3_@7n82rsemhzv-z&)d@*%'
+SECRET_KEY = os.getenv(
+    "DJANGO_SECRET_KEY",
+    "django-insecure-y$(ty_woo(=d+s+=b4p==%ddmt1a3_@7n82rsemhzv-z&)d@*%",
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env_bool("DJANGO_DEBUG", True)
 
-ALLOWED_HOSTS = [
-    "*"
-]
-CSRF_TRUSTED_ORIGINS = [
-    "https://test.ntwrk.ing"
-    "https://test.ntwrk.ing:4439"
-    ]
+ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", ["*"] if DEBUG else [])
+CSRF_TRUSTED_ORIGINS = env_list(
+    "DJANGO_CSRF_TRUSTED_ORIGINS",
+    [
+        "https://test.ntwrk.ing",
+        "https://test.ntwrk.ing:4439",
+    ],
+)
+
+if not DEBUG and SECRET_KEY.startswith("django-insecure-"):
+    raise ImproperlyConfigured("DJANGO_SECRET_KEY must be set when DJANGO_DEBUG=False.")
+
+if not DEBUG and not ALLOWED_HOSTS:
+    raise ImproperlyConfigured("DJANGO_ALLOWED_HOSTS must be set when DJANGO_DEBUG=False.")
+
+if env_bool("DJANGO_SECURE_PROXY_SSL_HEADER", False):
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Application definition
 
@@ -52,6 +82,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -86,7 +117,7 @@ WSGI_APPLICATION = 'zungat_tm.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'data/db.sqlite3',
+        'NAME': os.getenv("DJANGO_SQLITE_PATH", BASE_DIR / 'data/db.sqlite3'),
     }
 }
 
@@ -113,17 +144,26 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'ru'
+LANGUAGE_CODE = os.getenv("DJANGO_LANGUAGE_CODE", "ru")
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = os.getenv("DJANGO_TIME_ZONE", "Europe/Moscow")
 
 USE_I18N = True
 
 USE_TZ = True
 
 
-STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_URL = os.getenv("DJANGO_STATIC_URL", "/static/")
+STATIC_ROOT = os.getenv("DJANGO_STATIC_ROOT", BASE_DIR / "staticfiles")
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+    },
+}
+
+MEDIA_URL = os.getenv("DJANGO_MEDIA_URL", "/media/")
+MEDIA_ROOT = os.getenv("DJANGO_MEDIA_ROOT", BASE_DIR / "media")

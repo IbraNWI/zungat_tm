@@ -2,6 +2,7 @@
 import re
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from pydantic import ValidationError
 from ..application.manual_writeoff import ManualWriteoffApplication
 
@@ -30,6 +31,7 @@ def parse_bitrix_payload(data: dict) -> dict:
 
 
 @csrf_exempt
+@require_POST
 def accept_writeoff(request):
     try:
         payload = parse_bitrix_payload(
@@ -37,13 +39,25 @@ def accept_writeoff(request):
         )
 
         match = re.search(r'(\d+)$', payload["document_id"]["2"])
-        result = match.group(1) if match else None   
-        service = ManualWriteoffApplication().execute(fact_payment_id=int(result))
+        result = match.group(1) if match else None
+        if result is None:
+            raise ValueError("document_id does not contain payment id")
+
+        ManualWriteoffApplication().execute(fact_payment_id=int(result))
 
 
         return JsonResponse({
             "status": "success",
         })
+
+    except (KeyError, TypeError, ValueError) as e:
+        return JsonResponse(
+            {
+                "status": "error",
+                "errors": str(e),
+            },
+            status=400,
+        )
 
     except ValidationError as e:
         print(e)
