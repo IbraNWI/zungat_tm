@@ -44,7 +44,9 @@ SECRET_KEY = os.getenv(
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env_bool("DJANGO_DEBUG", True)
+# DEBUG = env_bool("DJANGO_DEBUG", False)
+
+DEBUG = True
 
 ALLOWED_HOSTS = env_list("DJANGO_ALLOWED_HOSTS", ["*"] if DEBUG else [])
 CSRF_TRUSTED_ORIGINS = env_list(

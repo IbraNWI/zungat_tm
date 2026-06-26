@@ -122,7 +122,7 @@ class BaseCRMClient:
 
             start = result["next"]
 
-    def list(self,filters:dict):
+    def list(self,filters:dict={}):
         method = f"crm.{self.endpoint}.list.json"
         params = {
             "entityTypeId": self.entity_type_id,
@@ -143,8 +143,13 @@ class BaseCRMClient:
             "entityTypeId":self.entity_type_id,
             "fields":object.dict(by_alias=True,exclude_none=True)
             }
-        return self.client._request(method=method,params=params)["result"]["item"]
+        response = self.client._request(method=method,params=params)
+        if response is None:
+            return response
+        entity = self.pydantic_class(**response["result"]["item"])
+        return entity
     
+
     def update(self,object:BaseConfigModel):
         method = f"crm.{self.endpoint}.update.json"
         id = object.id
@@ -154,7 +159,11 @@ class BaseCRMClient:
             "id":id,
             "fields":object.dict(by_alias=True,exclude_none=True)
             }
-        return self.client._request(method=method,params=params)
+        response = self.client._request(method=method,params=params)
+        if response is None:
+            return response
+        entity = self.pydantic_class(**response["result"]["item"])
+        return entity
     
     def delete(self,entity_id:int):
         method = f"crm.{self.endpoint}.delete.json"

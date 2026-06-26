@@ -24,7 +24,6 @@ class FactPaymentInfo:
     payment_types = PaymentStates
 
 
-
 class FactPayment(BaseConfigModel):
     id:Optional[int] = Field(None,alias="id")
     title:Optional[str] = Field(None,alias="title")

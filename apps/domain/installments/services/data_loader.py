@@ -1,7 +1,10 @@
+from datetime import datetime
 from apps.integrations.bx24.lib.services.client import Bx24Client
 
 class DataNotFoundError(Exception):
     pass
+
+
 
 
 class InstallmentLoader:
@@ -11,17 +14,18 @@ class InstallmentLoader:
 
     def _loadPaymentRules(self):
         payment_rules = self.bx_client.payment_rule.list(
-            filters={
-                "is_active":269,
-                ">=first_pay_date":"30.06.2026"
-                }
+            filters={}
             )
         return payment_rules
 
+    def _loadDeals(self,deals_ids:list):
+        deals_list = []
+        for deal_id in deals_ids:
+            deal = self.bx_client.deal.get(entity_id=deal_id)
+            if deal is not None:
+                deals_list.append(deal)
+        
+        return deals_list
+
     def load(self):
-        payment_rules = self.bx_client.payment_rule.list(filters={
-            "is_active":269,
-            ">=first_pay_date":"30.06.2026"
-            }
-        )
-        [print(i.id,i.first_pay_date) for i in payment_rules]
+        payment_rules = self._loadPaymentRules()        
