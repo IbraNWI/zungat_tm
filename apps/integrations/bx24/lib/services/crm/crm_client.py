@@ -144,6 +144,9 @@ class BaseCRMClient:
             "fields":object.dict(by_alias=True,exclude_none=True)
             }
         response = self.client._request(method=method,params=params)
+
+        print(response) #TODEBUG  DELETEME
+
         if response is None:
             return response
         entity = self.pydantic_class(**response["result"]["item"])

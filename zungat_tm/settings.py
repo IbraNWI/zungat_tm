@@ -81,7 +81,7 @@ INSTALLED_APPS = [
     "apps.integrations.tm_driver",
     "apps.domain.writeoff",
     "apps.domain.recovery",
-    "apps.domain.installments",
+    "apps.domain.autopayment",
     "apps.domain.cencel_payment"
 ]
 
