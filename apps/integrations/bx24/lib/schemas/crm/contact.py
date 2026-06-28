@@ -19,6 +19,7 @@ class Contact(BaseConfigModel):
     source_id:Optional[str] = Field(None,alias="sourceId")
     source_description:Optional[str] = Field(None,alias="sourceDescription")
     observers:Optional[List[int]] = Field(None,alias="observers")
+    assigned_by_id:Optional[int] = Field(None,alias="assignedById")
 
     has_phone:Optional[str] = Field(None,alias="hasPhone")
     fm:Optional[List[CustomField]] = Field(None,alias="fm")

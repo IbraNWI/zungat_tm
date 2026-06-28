@@ -35,6 +35,7 @@ class FactPayment(BaseConfigModel):
     stage_id:Optional[str] = Field(None,alias="stageId")
     previous_stage_id:Optional[str] = Field(None,alias="previousStageId")
     assigned_by_id:Optional[int] = Field(None,alias="assignedById")
+    created_by_id:Optional[int] = Field(None,alias="createdBy")
     opportunity:Optional[float] = Field(None,alias="opportunity")
     arest_sum:Optional[float] = Field(None,alias="ufCrm9_1755697433")
     payment_type_id:Optional[int] = Field(None,alias="ufCrm9PaymentType")

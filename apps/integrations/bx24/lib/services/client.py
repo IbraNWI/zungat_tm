@@ -114,7 +114,6 @@ class Bx24Client:
             params['auth'] = self.auth.access_token
 
         url = self._get_url(method)
-
         response = self.session.post(
             url=url,
             json=params

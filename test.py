@@ -1,38 +1,49 @@
 import os
 import django
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "zungat_tm.settings")  # <-- путь к твоим settings
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "zungat_tm.settings")
 django.setup()
 
-from apps.integrations.tm_driver.lib.services.client import TaxiMasterClient
-from apps.integrations.bx24.lib.services.client import Bx24Client
-from apps.integrations.tm_driver.lib.schemas import (
-    Driver,Operation)
-from apps.integrations.bx24.lib.schemas import PaymentRule
+from apps.domain.autopayment.application.autopayment2 import (
+    AutopaymentApplication
+)
 
-def request_test():
+
+
+
+def check():
+    from apps.integrations.bx24.lib.services.client import Bx24Client
     bx_client = Bx24Client()
-
-    rules = bx_client.payment_rule.list(filters={})
-    for r in rules:
-        print(bx_client.deal.get(entity_id=r.deal_id))
-
-def get_factPayment():
-    bx_client = Bx24Client()
-
-    payments = bx_client.fact_payment.list(filters={})
-    print(payments)
-
-def fields_get():
-
-    bx_client = Bx24Client()
-    print(bx_client.fact_payment.fields())
+    payment_rule = bx_client.payment_rule.get(717)
+    print(payment_rule)
 
 
-def run_test():
-    from apps.domain.autopayment.application.installments import AutopaymentApplication
-    autopayment = AutopaymentApplication()
-    autopayment.execute()
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 
-if __name__ == "__main__":
-    fields_get()
+def main():
+    from datetime import datetime,timezone
+    from apps.integrations.bx24.lib.services.client import Bx24Client
+    from apps.integrations.tm_driver.lib.services.client import TaxiMasterClient
+    from apps.domain.autopayment.services import (
+        InstallmentLoader, InstallmentValidator,
+        InstallmentCalculation, MakeOperation, CreatePayment
+    )
+
+    installments = InstallmentLoader(Bx24Client()).load()
+    installments = InstallmentValidator(Bx24Client()).validate(installments)
+    print("Корректных платежей:",len(installments))
+    installments = InstallmentCalculation(TaxiMasterClient()).calculate(installments)
+    # installments = MakeOperation(TaxiMasterClient()).make(installments)
+    # installments = CreatePayment(Bx24Client()).create(installments)
+
+    for installment in installments:
+        print(f"{installment.payment_rule.id} | {installment.operation.oper_sum} | {installment.fact_payment.opportunity} - {installment.fact_payment.arest_sum}")
+
+
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
+
+
+
+if __name__ == "__main__":  
+    main()
+    # check()

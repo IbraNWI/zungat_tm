@@ -117,10 +117,10 @@ class BaseCRMClient:
             for item in result.get("items", []):
                 yield self.pydantic_class(**item)
 
-            if "next" not in result:
+            if "next" not in response:
                 return
 
-            start = result["next"]
+            start = response["next"]
 
     def list(self,filters:dict={}):
         method = f"crm.{self.endpoint}.list.json"
@@ -145,14 +145,12 @@ class BaseCRMClient:
             }
         response = self.client._request(method=method,params=params)
 
-        print(response) #TODEBUG  DELETEME
 
         if response is None:
             return response
         entity = self.pydantic_class(**response["result"]["item"])
         return entity
     
-
     def update(self,object:BaseConfigModel):
         method = f"crm.{self.endpoint}.update.json"
         id = object.id

@@ -1,5 +1,4 @@
 from typing import Optional, List
-from datetime import datetime
 
 from pydantic import Field,field_validator
 
@@ -10,7 +9,7 @@ from apps.integrations.bx24.lib.schemas.crm.base_model import BaseConfigModel
 class PaymentRule(BaseConfigModel):
     id:Optional[int] = Field(None,alias="id")
     title:Optional[str] = Field(None,alias="title")
-    created_time:Optional[datetime] = Field(None,alias="createdTime")
+    created_time:Optional[str] = Field(None,alias="createdTime")
     company_id:Optional[int] = Field(None,alias="companyId")
     contact_id:Optional[int] = Field(None,alias="contactId")
     contact_ids:Optional[List[int]] = Field(None,alias="contactIds")
