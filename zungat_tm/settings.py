@@ -82,7 +82,8 @@ INSTALLED_APPS = [
     "apps.domain.writeoff",
     "apps.domain.recovery",
     "apps.domain.autopayment",
-    "apps.domain.cencel_payment"
+    "apps.domain.cencel_payment",
+    "apps.domain.depositarrest"
 ]
 
 MIDDLEWARE = [

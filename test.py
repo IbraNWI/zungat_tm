@@ -7,6 +7,7 @@ django.setup()
 from apps.domain.autopayment.application.autopayment2 import (
     AutopaymentApplication
 )
+from apps.domain.depositarrest.application.depositarrest import DepositArrest
 
 
 
@@ -42,8 +43,11 @@ def main():
 
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 
+def deposit_arrest_test():
+    deposit_arrest = DepositArrest()
+    deposit_arrest.execute()
 
 
 if __name__ == "__main__":  
-    main()
+    deposit_arrest_test()
     # check()
