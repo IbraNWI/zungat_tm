@@ -1,3 +1,5 @@
+from django.db import IntegrityError
+import random
 from apps.domain.depositarrest.models import ArrestedDeposit
 from apps.integrations.bx24.lib.services.client import Bx24Client
 from apps.integrations.tm_driver.lib.schemas.operation import Operation
@@ -11,6 +13,8 @@ from datetime import datetime,timezone
 
 INDEV = True
 
+class DepositArrestError(Exception):
+    pass
 
 
 class DepositArrest:
@@ -28,9 +32,8 @@ class DepositArrest:
     def filter_deals_with_arrest(self, deals: list[Deal]) -> list[Deal]:
         #DEBUG
         for deal in deals:
-            print(f'filter deal arrest sum is {deal}')
+            print(f'[DEBUG INFO] deal {deal.id} arrest sum is {deal.total_arest_sum}\n')
         deals_with_arrest = [deal for deal in deals if deal.total_arest_sum != None]
-        print(deals_with_arrest)
         return [deal for deal in deals_with_arrest if deal.total_arest_sum > 0]
 
     def get_deal_last_payment_date(self, deal : Deal) -> FactPayment | None:
@@ -46,9 +49,9 @@ class DepositArrest:
 
     def get_driver_deposits_after(self,driver_id : int, last_payment_date) -> list[Operation]:
         
-        finish_time = datetime.now(timezone.utc).date()
+        finish_time = datetime.now(timezone.utc)
+        last_payment_date = datetime.fromisoformat(last_payment_date)
 
-        last_payment_date = datetime.fromisoformat(last_payment_date).date()
         operations = self.tm_client.operation.get(
             driver_id=driver_id,
             start_time=last_payment_date,
@@ -56,6 +59,9 @@ class DepositArrest:
         )
 
         receipt_operations = [ oper for oper in operations if oper.oper_type == "receipt"]
+
+        for oper in receipt_operations: 
+            oper.driver_id = driver_id #driver_id не хранится в Operation, но я получаю его из payment_rule  
         
         return receipt_operations
 
@@ -78,8 +84,10 @@ class DepositArrest:
 
     def create_new_arrested_deposit(self, deposit_operation : Operation) -> ArrestedDeposit:
         arrested_deposit = ArrestedDeposit(
+            driver_id=deposit_operation.driver_id,
             operation_id=deposit_operation.id,
-            available_funds=deposit_operation.sum
+            available_funds=deposit_operation.sum,
+            deposit_date=deposit_operation.create_time
         )
         return arrested_deposit
 
@@ -95,18 +103,22 @@ class DepositArrest:
                 available_deposits.append(arrested_deposit)
             
             if deposits_available_funds >= deal_arrest_amount:
+                for d in arrested_deposits:
+                    print(f'found in arrested_deposits {d}')
                 return available_deposits
         
-        arrested_deposits_ids = [ad.id for ad in arrested_deposits]
+        arrested_deposits_ids = [ad.operation_id for ad in arrested_deposits]
+
         for deposit_operation in deposits_operations:
             if deposit_operation.id in arrested_deposits_ids:
                 continue
             else:
                 new_arrested_deposit = self.create_new_arrested_deposit(deposit_operation)
-                new_arrested_deposit.save()
+                print(f'created new arrested deposit by {deposit_operation} and here it is {new_arrested_deposit}')
                 arrested_deposits_ids.append(new_arrested_deposit.operation_id)
                 deposits_available_funds += new_arrested_deposit.available_funds
                 available_deposits.append(new_arrested_deposit)
+
 
             if deposits_available_funds >= deal_arrest_amount:
                 return available_deposits
@@ -123,13 +135,14 @@ class DepositArrest:
         payment = FactPayment(
             title=title,
             created_time=creation_time,
-            company_id=deal.compamy_id,
+            company_id=deal.company_id,
             contact_id=deal.contact_id,
-            contacts_ids=deal.contacts_ids,
-            category_id=deal.caterogy_id,
+            contact_ids=deal.contact_ids,
+            category_id=deal.category_id,
             stage_id=success_stage_id,
             assigned_by_id=deal.assigned_by_id,
             opportunity=payment_amount,
+            arest_sum=0,
             deal_id=deal.id
         )
         return payment
@@ -140,64 +153,93 @@ class DepositArrest:
         Но я не уверен что дата последнего fact payment всегда хранится там, 
         что если платеж был совершен без payment rule? такое вообще возможно?
         """
-        print('starting to precess!')
 
         last_payment_date = self.get_deal_last_payment_date(deal_with_arrest)
+        print(f'[DEBUG INFO] Дата последнего платежа по рассрочке {last_payment_date}')
+
         driver_id = self.get_deal_driver_id(deal_with_arrest)
         deal_arrest_amount = deal_with_arrest.total_arest_sum
         if last_payment_date == None:
+            print(f'[ERROR] - отсутствует дата последнего платежа в payment_rule')
             return None
+            #raise DepositArrestError
         if driver_id == None:
+            print(f'[ERROR] - отсутствует driver_id')
             return None
+            #raise DepositArrestError
 
+        print(f'[DEBUG INFO] - looking for driver {driver_id} deposits after {last_payment_date}')
         new_deposits = self.get_driver_deposits_after(driver_id,last_payment_date)
-        arrested_deposits = self.get_arrested_deposits_after(driver_id,last_payment_date)
+        print(f'[DEBUG INFO] - Found {len(new_deposits)} deposits')
 
+        print(f'[DEBUG INFO] - looking for driver {driver_id} arrested deposits after {last_payment_date}')
+        arrested_deposits = self.get_arrested_deposits_after(driver_id,last_payment_date)
+        print(f'[DEBUG INFO] - Found {len(arrested_deposits)} arrested deposits')
+
+        print(f'[DEBUG INFO] - looking for available to pay arrest deposits')
         available_deposits_to_payment = self.get_available_deposits_to_payment(new_deposits, arrested_deposits, deal_arrest_amount)
+        print(f'[DEBUG INFO] - Found {len(available_deposits_to_payment)} deposits with available funds')
 
         arested_deposits_available_funds = 0
         used_deposits = []
 
         for deposit in available_deposits_to_payment:
             arested_deposits_available_funds += deposit.available_funds
-            used_deposits.append(deposit)
             if arested_deposits_available_funds >= deal_arrest_amount:
+
                 remaining_funds = arested_deposits_available_funds - deal_arrest_amount
+
                 if remaining_funds < deposit.available_funds:
-                    deposit = remaining_funds   ## SETTER FOR PROTECTION
+                    used_deposits.append({"deposit" : deposit, "spent_amount" : deposit.available_funds - remaining_funds})
+                    deposit.available_funds = remaining_funds   ## SETTER FOR PROTECTION
                 break
             else:
+                used_deposits.append({"deposit" : deposit, "spent_amount" : deposit.available_funds})
                 deposit.available_funds = 0 ## SETTER FOR PROTECTION TODO
 
         if arested_deposits_available_funds <= 0:
             print('no available funds to pay arrest')
             return None
+        else:
+            print(f'[DEBUG INFO] arested deposits available funds is {arested_deposits_available_funds}')
 
-        
-        payment_amount = arested_deposits_available_funds
+        if arested_deposits_available_funds > deal_arrest_amount:
+            payment_amount = deal_arrest_amount
+        else:
+            payment_amount = arested_deposits_available_funds 
         payment_title = f"Закрытие ареста сделки {deal_with_arrest.id} на сумму {payment_amount}"
+        print(f'[DEBUG INFO] - creating new fact payment titled {payment_title}\n')
         new_payment = self.create_fact_payment(deal_with_arrest,payment_amount,payment_title)
         if new_payment != None:
-
             if INDEV:
-                print(f"new payment is {new_payment}")
+                print(f"[INFO] - used deposits is {used_deposits} \n")
+                print(f"[WARNING] - changes was never commited")
+                print(f"[SUCCESS] - new payment is {new_payment} \n")
+                input('Press Enter to continue to next deal')
             else:
-                for deposit in used_deposits: # saving changes
-                    deposit.save()
-                self.bx_client.fact_payment.add(new_payment)
+                #new_fact_payment = self.bx_client.fact_payment.add(new_payment) #uncomment when tested
 
+                for deposit in used_deposits: # saving changes
+                    #deposit["deposit"].fact_payments[str(new_fact_payment.id)] = deposit["spent_amount"] #uncomment when tested
+                    deposit["deposit"].fact_payments[f"testRandomId{random.randint(10000000,99999999)}"] = deposit["spent_amount"]
+                    try:
+                        deposit["deposit"].save()
+                    except IntegrityError:
+                        print('!!!! THAT SHOULD NEVER HAPPED, check for bugs  !!!!!')
+                        print(f'all arrested deposits : {list(ArrestedDeposit.objects.all())}')
+                        print(f'new arrested deposit is {deposit.driver_id}, {deposit.operation_id }')
+                        print('aborting an attemt to create new arested deposid with already existing id or no driver_id')
 
     def execute(self):
 
-        print('getting deals')
+        print(f'[Info] gathering all deals ----\n')
         all_deals = self.get_deals()
-        print('getting deals with arrest')
+        print(f'[Info] filtering deals with arrests\n')
         deals_with_arrest = self.filter_deals_with_arrest(all_deals)
 
         for deal in deals_with_arrest:
-            print(f'proccessing deal {deal}')
+            print(f'[INFO] proccessing deal\n\n {deal} \n')
             self.process_deposits_to_pay_deal_arrest(deal)
-            print("DONE!")
             
         
 

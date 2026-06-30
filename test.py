@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 import django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "zungat_tm.settings")
@@ -8,6 +9,8 @@ from apps.domain.autopayment.application.autopayment2 import (
     AutopaymentApplication
 )
 from apps.domain.depositarrest.application.depositarrest import DepositArrest
+
+from apps.domain.depositarrest.models import ArrestedDeposit
 
 
 
@@ -47,6 +50,15 @@ def deposit_arrest_test():
     deposit_arrest = DepositArrest()
     deposit_arrest.execute()
 
+def tm_client_get_test():
+    from apps.integrations.tm_driver.lib.services.client import TaxiMasterClient
+    start = datetime(2026, 6, 1)
+    finish = datetime(2026, 6, 30, 23, 59, 59)
+    response = TaxiMasterClient().operation.get(driver_id=4564,start_time=start,finish_time=finish)
+    print(response)
+
+def clear_deposit_arrests():
+    arrests = ArrestedDeposit.objects.all().delete()
 
 if __name__ == "__main__":  
     deposit_arrest_test()
