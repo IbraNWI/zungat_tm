@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 import django
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "zungat_tm.settings")
@@ -18,13 +18,14 @@ from apps.domain.depositarrest.models import ArrestedDeposit
 def check():
     from apps.integrations.bx24.lib.services.client import Bx24Client
     bx_client = Bx24Client()
-    payment_rule = bx_client.payment_rule.get(717)
+    payment_rule = bx_client.fact_payment.fields()
     print(payment_rule)
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
-
-def main():
+#                       AUTOPAYMENTS                           #
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
+def test_autopayment():
     from datetime import datetime,timezone
     from apps.integrations.bx24.lib.services.client import Bx24Client
     from apps.integrations.tm_driver.lib.services.client import TaxiMasterClient
@@ -43,23 +44,33 @@ def main():
     for installment in installments:
         print(f"{installment.payment_rule.id} | {installment.operation.oper_sum} | {installment.fact_payment.opportunity} - {installment.fact_payment.arest_sum}")
 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 
-def deposit_arrest_test():
-    deposit_arrest = DepositArrest()
-    deposit_arrest.execute()
 
-def tm_client_get_test():
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
+#                       RECOVERY                               #
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
+
+def test_recovery():
+    from apps.integrations.bx24.lib.services.client import Bx24Client
     from apps.integrations.tm_driver.lib.services.client import TaxiMasterClient
-    start = datetime(2026, 6, 1)
-    finish = datetime(2026, 6, 30, 23, 59, 59)
-    response = TaxiMasterClient().operation.get(driver_id=4564,start_time=start,finish_time=finish)
-    print(response)
+    from apps.domain.recovery.services import (
+        DriverAllocation,DriverLoader,DriverValidator,CreatePayment
+    )
+    drivers = DriverLoader(Bx24Client()).load()
+    drivers = DriverValidator().validate(drivers)
+    drivers = DriverAllocation(TaxiMasterClient()).allocate(drivers)
+    drivers = CreatePayment(Bx24Client()).create(drivers)
 
-def clear_deposit_arrests():
-    arrests = ArrestedDeposit.objects.all().delete()
 
-if __name__ == "__main__":  
-    deposit_arrest_test()
+
+
+    # drivers = DriverAllocation(TaxiMasterClient()).allocate(drivers)
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
+if __name__ == "__main__": 
     # check()
+    test_recovery()
+    # test_autopayment()
+

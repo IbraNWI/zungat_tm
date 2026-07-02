@@ -25,6 +25,7 @@ class PaymentRule(BaseConfigModel):
     allow_overdraft:Optional[bool] = Field(None,alias="ufCrm15AllowOverdraft")
     payment_frequency:Optional[int] = Field(None,alias="ufCrm15_1753599678264")
     payment_day_time:Optional[int] = Field(None,alias="ufCrm15PaymentDayTime")
+    arested_date:Optional[str] = Field(None,alias="ufCrm15ArestedDate")
 
 
     @field_validator("payment_sum", mode="before")

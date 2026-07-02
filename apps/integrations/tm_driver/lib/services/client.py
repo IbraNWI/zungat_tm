@@ -36,7 +36,7 @@ class TaxiMasterClient:
         self._init_subclients()
         if not self.auth:
             raise Exception("Настройки TaxiMaster не найдены")
-        self.base_url = f"{self.auth.host}{self.API_NAME}/{self.API_VERSION}"
+        self.base_url = f"{self.auth.host}/{self.API_NAME}/{self.API_VERSION}"
         self.session = requests.Session()
         self.session.mount("https://", LegacySSLAdapter())
     

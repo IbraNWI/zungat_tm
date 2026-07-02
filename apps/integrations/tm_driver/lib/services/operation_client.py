@@ -1,3 +1,4 @@
+from datetime import datetime
 from apps.integrations.tm_driver.lib.schemas.operation import Operation
 
 
@@ -7,7 +8,7 @@ class OperationClient():
         self.client = client
         self.pydantic_class = Operation
     
-    def get(self,driver_id,start_time,finish_time):
+    def get(self,driver_id:int,start_time:datetime,finish_time:datetime) -> list[Operation]:
         start_time = start_time.strftime("%Y%m%d%H%M%S")
         finish_time = finish_time.strftime("%Y%m%d%H%M%S")
         method = "get_driver_operations"
